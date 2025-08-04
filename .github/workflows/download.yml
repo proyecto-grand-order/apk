@@ -35,19 +35,20 @@ jobs:
       - name: Convert Game XAPK to APK
         run: java -jar APKEditor.jar m -i fate.xapk -o com.aniplex.fategrandorder.v${{ env.VERSION }}.apk
 
+      - name: Set Release Date
+        run: echo "RELEASE_DATE=$(date --utc +'%Y-%m-%d %H:%M UTC')" >> $GITHUB_ENV
+
       - name: Upload game to Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ env.VERSION }}
           name: "🎮 Fate/Grand Order v${{ env.VERSION }}"
           body: |
-            # 🎉 Release Fate/Grand Order v${{ env.VERSION }}
-
             🚀 **¡Nueva versión disponible del juego Fate/Grand Order!**
 
             🔢 **Versión:** v${{ env.VERSION }}  
             📦 **APK:** `com.aniplex.fategrandorder.v${{ env.VERSION }}.apk`  
-            📅 **Fecha:** $(date --utc +"%Y-%m-%d %H:%M UTC")
+            📅 **Fecha:** ${{ env.RELEASE_DATE }}
 
             📥 Puedes descargar el APK directamente desde este [enlace](https://github.com/${{ github.repository }}/releases/download/v${{ env.VERSION }}/com.aniplex.fategrandorder.v${{ env.VERSION }}.apk).
 
