@@ -4,8 +4,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  jp:
+  build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        region: [JP, NA]
+
     permissions:
       packages: write
       contents: write
@@ -14,9 +18,21 @@ jobs:
       - name: Install Dependencies
         run: sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Set Game Version
+      - name: Set Game Info Based on Region
         run: |
-          VERSION=$(curl -s "https://gplay-ver.atlasacademy.workers.dev/?id=com.aniplex.fategrandorder")
+          if [[ "${{ matrix.region }}" == "JP" ]]; then
+            PACKAGE_ID="com.aniplex.fategrandorder"
+            REGION_NAME="JP"
+          else
+            PACKAGE_ID="com.aniplex.fategrandorder.en"
+            REGION_NAME="NA"
+          fi
+          echo "PACKAGE_ID=$PACKAGE_ID" >> $GITHUB_ENV
+          echo "REGION=$REGION_NAME" >> $GITHUB_ENV
+
+      - name: Get Game Version
+        run: |
+          VERSION=$(curl -s "https://gplay-ver.atlasacademy.workers.dev/?id=$PACKAGE_ID")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Set up JDK
@@ -30,10 +46,10 @@ jobs:
         run: wget -O APKEditor.jar "https://github.com/REAndroid/APKEditor/releases/download/V1.4.4/APKEditor-1.4.4.jar"
 
       - name: Download Game APK
-        run: wget -O fate.xapk "https://fgo.bigcereal.com/apk/com.aniplex.fategrandorder.v${{ env.VERSION }}.xapk"
+        run: wget -O fate.xapk "https://fgo.bigcereal.com/apk/${PACKAGE_ID}.v${{ env.VERSION }}.xapk"
 
       - name: Convert Game XAPK to APK
-        run: java -jar APKEditor.jar m -i fate.xapk -o com.aniplex.fategrandorder.v${{ env.VERSION }}.apk
+        run: java -jar APKEditor.jar m -i fate.xapk -o ${PACKAGE_ID}.v${{ env.VERSION }}.apk
 
       - name: Set Release Date
         run: echo "RELEASE_DATE=$(date --utc +'%Y-%m-%d %H:%M UTC')" >> $GITHUB_ENV
@@ -41,21 +57,22 @@ jobs:
       - name: Upload game to Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ env.VERSION }}
-          name: "🎮 Fate/Grand Order v${{ env.VERSION }}"
+          tag_name: ${{ env.REGION }}-v${{ env.VERSION }}
+          name: "🎮 Fate/Grand Order ${{ env.REGION }} v${{ env.VERSION }}"
           body: |
-            🚀 **¡Nueva versión disponible del juego Fate/Grand Order!**
+            🚀 **¡Nueva versión disponible del juego Fate/Grand Order (${{ env.REGION }})!**
 
             🔢 **Versión:** v${{ env.VERSION }}  
-            📦 **APK:** `com.aniplex.fategrandorder.v${{ env.VERSION }}.apk`  
-            📅 **Fecha:** ${{ env.RELEASE_DATE }}
+            📦 **APK:** `${PACKAGE_ID}.v${{ env.VERSION }}.apk`  
+            📅 **Fecha:** ${{ env.RELEASE_DATE }}  
+            🗺️ **Región:** ${{ env.REGION }}
 
-            📥 Puedes descargar el APK directamente desde este [enlace](https://github.com/${{ github.repository }}/releases/download/v${{ env.VERSION }}/com.aniplex.fategrandorder.v${{ env.VERSION }}.apk).
-
+            📥 Puedes descargar el APK directamente desde este [enlace](https://github.com/${{ github.repository }}/releases/download/${{ env.REGION }}-v${{ env.VERSION }}/${PACKAGE_ID}.v${{ env.VERSION }}.apk).
             ---
 
             _🤖 Distribuido automáticamente vía GitHub Actions._
-          files: com.aniplex.fategrandorder.v${{ env.VERSION }}.apk
+          files: ${PACKAGE_ID}.v${{ env.VERSION }}.apk
+
       - name: Notify Discord Webhook
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
@@ -72,7 +89,7 @@ jobs:
                   "icon_url": "https://github.com/proyecto-grand-order.png"
                 },
                 "title": "Fate Grand Order - APKs",
-                "description": "🚨 ¡Nueva versión disponible del juego Fate/Grand Order!",
+                "description": "🚨 ¡Nueva versión disponible del juego Fate/Grand Order (${{ env.REGION }})!",
                 "color": 1752220,
                 "fields": [
                   {
@@ -82,7 +99,12 @@ jobs:
                   },
                   {
                     "name": "📦 APK",
-                    "value": "[📥 Click para Descargar APK](https://github.com/${{ github.repository }}/releases/download/v${{ env.VERSION }}/com.aniplex.fategrandorder.v${{ env.VERSION }}.apk)",
+                    "value": "[Click para Descargar APK](https://github.com/${{ github.repository }}/releases/download/${{ env.REGION }}-v${{ env.VERSION }}/${PACKAGE_ID}.v${{ env.VERSION }}.apk)",
+                    "inline": true
+                  },
+                  {
+                    "name": "🗺️ Región",
+                    "value": "'"${{ env.REGION }}"'",
                     "inline": true
                   }
                 ],
