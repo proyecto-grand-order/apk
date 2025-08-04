@@ -63,7 +63,7 @@ jobs:
             🚀 **¡Nueva versión disponible del juego Fate/Grand Order (${{ env.REGION }})!**
 
             🔢 **Versión:** v${{ env.VERSION }}  
-            📦 **APK:** `${PACKAGE_ID}.v${{ env.VERSION }}.apk`  
+            📦 **APK:** `${{env.PACKAGE_ID}}.v${{ env.VERSION }}.apk`  
             📅 **Fecha:** ${{ env.RELEASE_DATE }}  
             🗺️ **Región:** ${{ env.REGION }}
 
