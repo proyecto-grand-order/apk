@@ -1,0 +1,81 @@
+name: Download APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  jp:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: write
+
+    steps:
+      - name: Install Dependencies
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Set Game Version
+        run: |
+          VERSION=$(curl -s "https://gplay-ver.atlasacademy.workers.dev/?id=com.aniplex.fategrandorder")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Set up JDK
+        if: env.UPDATE == 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Download Merge Tools
+        run: wget -O APKEditor.jar "https://github.com/REAndroid/APKEditor/releases/download/V1.4.4/APKEditor-1.4.4.jar"
+
+      - name: Download Game APK
+        run: wget -O fate.xapk "https://fgo.bigcereal.com/apk/com.aniplex.fategrandorder.v${{ env.VERSION }}.xapk"
+
+      - name: Convert Game XAPK to APK
+        run: java -jar APKEditor.jar -i fate.xapk -o com.aniplex.fategrandorder.v${{ env.VERSION }}.apk
+
+      - name: Upload game to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}
+          name: Fate/Grand Order v${{ env.VERSION }}
+          body: "Nueva versión del juego.\nAPK compilada automáticamente."
+          files: com.aniplex.fategrandorder.v${{ env.VERSION }}.apk
+
+      - name: Notify Discord Webhook
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          curl -X POST "$DISCORD_WEBHOOK_URL" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "content": null,
+            "embeds": [
+              {
+                "author": {
+                  "name": "Proyecto Grand Order",
+                  "icon_url": "https://github.com/proyecto-grand-order.png"
+                },
+                "title": "Fate Grand Order - APKs",
+                "description": "Nueva versión disponible del juego.",
+                "color": 1752220,
+                "fields": [
+                  {
+                    "name": "Versión",
+                    "value": "${{ env.VERSION }}",
+                    "inline": true
+                  },
+                  {
+                    "name": "APK",
+                    "value": "[Descargar APK](https://github.com/${{ github.repository }}/releases/download/v${{ env.VERSION }}/com.aniplex.fategrandorder.v${{ env.VERSION }}.apk)",
+                    "inline": true
+                  }
+                ],
+                "footer": {
+                  "text": "github.com/${{ github.repository }}"
+                },
+                "timestamp": "'$(date --iso-8601=seconds)'"
+              }
+            ]
+          }'
