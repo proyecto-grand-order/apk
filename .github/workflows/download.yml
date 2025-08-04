@@ -67,7 +67,7 @@ jobs:
             📅 **Fecha:** ${{ env.RELEASE_DATE }}  
             🗺️ **Región:** ${{ env.REGION }}
 
-            📥 Puedes descargar el APK directamente desde este [enlace](https://github.com/${{ github.repository }}/releases/download/${{ env.REGION }}-v${{ env.VERSION }}/${PACKAGE_ID}.v${{ env.VERSION }}.apk).
+            📥 Puedes descargar el APK directamente desde este [enlace](https://github.com/${{ github.repository }}/releases/download/${{ env.REGION }}-v${{ env.VERSION }}/${{ env.PACKAGE_ID }}.v${{ env.VERSION }}.apk).
             ---
 
             _🤖 Distribuido automáticamente vía GitHub Actions._
