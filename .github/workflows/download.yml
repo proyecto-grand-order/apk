@@ -55,9 +55,6 @@ jobs:
 
             _🤖 Distribuido automáticamente vía GitHub Actions._
           files: com.aniplex.fategrandorder.v${{ env.VERSION }}.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Notify Discord Webhook
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
