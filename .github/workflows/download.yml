@@ -71,7 +71,7 @@ jobs:
             ---
 
             _🤖 Distribuido automáticamente vía GitHub Actions._
-          files: ${PACKAGE_ID}.v${{ env.VERSION }}.apk
+          files: ${{env.PACKAGE_ID}}.v${{ env.VERSION }}.apk
 
       - name: Notify Discord Webhook
         env:
