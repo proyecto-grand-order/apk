@@ -99,7 +99,7 @@ jobs:
                   },
                   {
                     "name": "📦 APK",
-                    "value": "[Click para Descargar APK](https://github.com/${{ github.repository }}/releases/download/${{ env.REGION }}-v${{ env.VERSION }}/${{ env.PACKAGE_ID }.v${{ env.VERSION }}.apk)",
+                    "value": "[Click para Descargar APK](https://github.com/${{ github.repository }}/releases/download/${{ env.REGION }}-v${{ env.VERSION }}/${{ env.PACKAGE_ID }}.v${{ env.VERSION }}.apk)",
                     "inline": true
                   },
                   {
