@@ -46,10 +46,10 @@ jobs:
         run: wget -O APKEditor.jar "https://github.com/REAndroid/APKEditor/releases/download/V1.4.4/APKEditor-1.4.4.jar"
 
       - name: Download Game APK
-        run: wget -O fate.xapk "https://fgo.bigcereal.com/apk/${PACKAGE_ID}.v${{ env.VERSION }}.xapk"
+        run: wget -O fate.xapk "https://fgo.bigcereal.com/apk/${{ env.PACKAGE_ID }}.v${{ env.VERSION }}.xapk"
 
       - name: Convert Game XAPK to APK
-        run: java -jar APKEditor.jar m -i fate.xapk -o ${PACKAGE_ID}.v${{ env.VERSION }}.apk
+        run: java -jar APKEditor.jar m -i fate.xapk -o ${{ env.PACKAGE_ID }}.v${{ env.VERSION }}.apk
 
       - name: Set Release Date
         run: echo "RELEASE_DATE=$(date --utc +'%Y-%m-%d %H:%M UTC')" >> $GITHUB_ENV
